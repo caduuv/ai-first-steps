@@ -271,3 +271,5 @@ print(f"Normalized means: {np.round(normalized.mean(axis=0), 10)}")  # Should be
 print(f"Normalized stds: {np.round(normalized.std(axis=0), 10)}")    # Should be ~1
 
 print("\n✅ Module 1, Script 01 complete!")
+
+# %%
