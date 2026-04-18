@@ -1,0 +1,19 @@
+# CIFAR-10 Classifier Configuration
+
+data:
+  augment: true
+  data_root: ./data
+
+model:
+  num_classes: 10
+  dropout_rate: 0.3
+
+training:
+  epochs: 20
+  batch_size: 64
+  learning_rate: 0.001
+  optimizer: adam
+  scheduler:
+    type: step
+    step_size: 10
+    gamma: 0.5

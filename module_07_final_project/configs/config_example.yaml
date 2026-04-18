@@ -1,0 +1,107 @@
+# Example Experiment Configuration
+# Modify this file to run different experiments
+
+project:
+  name: cervical_cytology_cgan
+  description: "Conditional GAN for cervical cytology image synthesis"
+  output_dir: experiments/run_001
+
+data:
+  dataset: simulated  # Options: simulated, sipakmed, herlev
+  image_size: 64
+  channels: 3
+  cell_types:
+    - Normal
+    - LSIL
+    - HSIL
+    - ASC-US
+  
+  augmentation:
+    horizontal_flip: true
+    vertical_flip: true
+    rotation: 360
+    color_jitter:
+      brightness: 0.3
+      contrast: 0.3
+      saturation: 0.3
+    gaussian_blur: 0.1
+  
+  split:
+    train: 0.8
+    val: 0.1
+    test: 0.1
+  
+  batch_size: 32
+  num_workers: 4
+
+model:
+  type: cgan  # Options: cgan, cvae, diffusion
+  
+  generator:
+    architecture: unet  # Options: fc, unet, resnet
+    latent_dim: 128
+    condition_embed_dim: 64
+    channels: [64, 128, 256, 512]
+    use_attention: true
+    use_film: true  # Feature-wise Linear Modulation
+  
+  discriminator:
+    architecture: patchgan  # Options: fc, patchgan
+    channels: [64, 128, 256]
+    use_spectral_norm: true
+    use_instance_norm: true
+
+training:
+  epochs: 200
+  
+  optimizer:
+    type: adam
+    lr_generator: 1e-4
+    lr_discriminator: 4e-4
+    beta1: 0.5
+    beta2: 0.999
+    weight_decay: 0.0
+  
+  scheduler:
+    type: cosine
+    warmup_epochs: 5
+    min_lr: 1e-6
+  
+  loss:
+    type: wgan_gp  # Options: bce, wgan, wgan_gp
+    gradient_penalty_weight: 10.0
+    feature_matching_weight: 0.0
+  
+  d_steps_per_g_step: 1
+  label_smoothing: 0.1
+  
+  logging:
+    log_interval: 10
+    sample_interval: 10
+    checkpoint_interval: 20
+    n_display_samples: 64
+
+evaluation:
+  fid:
+    compute: true
+    interval: 20
+    n_samples: 5000
+  
+  visual_inspection:
+    n_per_class: 10
+    save_grid: true
+  
+  downstream_classifier:
+    train_on_synthetic: true
+    evaluate_on_real: true
+
+# Diffusion-specific config (used when model.type = diffusion)
+diffusion:
+  timesteps: 1000
+  beta_schedule: cosine  # Options: linear, cosine
+  beta_start: 0.0001
+  beta_end: 0.02
+  guidance_scale: 5.0
+  classifier_free_guidance_prob: 0.1
+  sampler: ddim  # Options: ddpm, ddim
+  ddim_steps: 50  # Faster sampling
